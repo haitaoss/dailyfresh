@@ -15,8 +15,6 @@ import os
 import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# 在项目的搜索路径里面添加上apps。
-sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -31,6 +29,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+# 在资源的搜索路径里面添加上apps。
+sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -93,8 +93,9 @@ DATABASES = {
 }
 # django认证系统使用的模型类(设置这个的目的是，不在使用django给我们的auth_user表存储
 # 用户的信息。使用我们指定的模型类对应的表来存储。当然你的模型类必须继承django.AbstractUser)
-# 我们创建玩django项目，执行迁移文件，会创建一个auth_user的数据库表来存储用户信息
-# 这么指定之后，就不在创建默认的auth_user，而是根据我们指定的模型类的名字来创建
+# AUTH_USER_MODEL配置参数要在第一次迁移数据库之前配置，否则可能django的认证系统工作不正
+# 如果执行python manage.py makemigrations出错，就按照提示先生成。依赖的app的迁移文件
+# 在执行生成迁移文件的步骤即可
 AUTH_USER_MODEL = 'user.User'
 
 # Internationalization
@@ -124,3 +125,16 @@ TINYMCE_DEFAULT_CONFIG = {
     'width': 600,
     'height': 400,
 }
+
+# 发送邮件配置
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# smtp服务器的地址
+EMAIL_HOST = 'smtp.qq.com'
+# 服务器的端口
+EMAIL_PORT = 25
+# 发送邮件的邮箱
+EMAIL_HOST_USER = '1486504210@qq.com'
+# 在邮箱中设置的客户端授权密码
+EMAIL_HOST_PASSWORD = 'xqdukjqvgppljdje'
+# 收件人看到的发件人，<>里面必须是发送人的邮箱
+EMAIL_FROM = '天天生鲜<1486504210@qq.com>'
