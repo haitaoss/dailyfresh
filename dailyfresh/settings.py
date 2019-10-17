@@ -138,3 +138,17 @@ EMAIL_HOST_USER = '1486504210@qq.com'
 EMAIL_HOST_PASSWORD = 'xqdukjqvgppljdje'
 # 收件人看到的发件人，<>里面必须是发送人的邮箱
 EMAIL_FROM = '天天生鲜<1486504210@qq.com>'
+
+# Django的缓存的配置
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/9",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+# 配置session存储
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
