@@ -51,4 +51,4 @@ class FDFSStorage(Storage):
 
     def url(self, name):
         """返回访问文件的url路径"""
-        return self.base_url + name
+        return self.base_url + "/" + name

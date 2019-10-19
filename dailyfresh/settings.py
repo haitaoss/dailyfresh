@@ -160,6 +160,6 @@ LOGIN_URL = '/user/login'
 DEFAULT_FILE_STORAGE = 'utils.fdfs.storage.FDFSStorage'
 
 # 　设置fdfs使用的client.conf文件路径
-FDFS_CLIENT_CONF = './utils/fdfs/client.conf'
+FDFS_CLIENT_CONF = BASE_DIR + '/utils/fdfs/client.conf'
 # 设置fdfs存储服务器的nginx的IP和端口
 FDFS_URL = 'http://192.168.205.148:8888'
