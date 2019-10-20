@@ -1,6 +1,5 @@
 # 使用celery
-from django.template import loader, RequestContext
-from django_redis import get_redis_connection
+from django.template import loader
 from celery import Celery
 from django.conf import settings
 from django.core.mail import send_mail
