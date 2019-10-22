@@ -153,7 +153,8 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-# 配置登录url地址
+# 配置登录url地址,不是有login_required这个django提供的认证函数嘛.
+# 这里就是设置.被拦截之后,让浏览器去访问那个地址.
 LOGIN_URL = '/user/login'
 
 # 设置django的文件存储类（这么设计之后，django就会调用这个类来处理存储文件）

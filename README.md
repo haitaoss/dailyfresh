@@ -114,4 +114,11 @@
         网站本身性能的优化,减少数据库的查询次数
         防止恶意的攻击,DDOS攻击(就是多台电脑同时访问你的网站)
         
-        
+       
+第五天:商品详情页面
+一,商品详情页面
+    需要分类信息,商品sku信息,商品评论信息,新品推荐信息,购物车信息.
+    GoodsType.object.all(),GoodsSKU.object.get(id=sku_id),OrderGoods(sku=GoodsSKU),
+    GoodsSKU.objects.filter(type=sku.type).exclude(id=sku_id).order_by('-create_time'),购物车信息从redis中获取
+    
+二,列表页,使用分页模型,学会自定义要显示的页码
