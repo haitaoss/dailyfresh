@@ -1,6 +1,13 @@
 # dailyfresh
 天天生鲜
 
+
+访问项目首先启动,在settings里面配置的redis服务器,再启动fdfs tracker和storage,再启动访问fdfs的nginx服务
+sudo redis-server /etc/redis/redis.conf 首页需要查询redis缓存有没有
+sudo service fdfs_trackerd start 上传文件才需要[可以先不启动]
+sudo service fdfs_storaged start 上传文件才需要[可以先不启动]
+sudo /usr/local/nginx/sbin/nginx  访问存在fdfs文件存储系统里面的图片文件需要
+
 第一天：实现注册功能
 首先显示注册页面，在写出注册提交的试图函数 。然后实现发邮件的功能
 
@@ -124,20 +131,40 @@
 二,列表页,使用分页模型,学会自定义要显示的页码
 
 
-第六天:全文搜索
-例子 :草莓
+第六天:全文搜索,购物车页面的加减js的书写,js的操作
+    一,全文检索框架
+        例子 :草莓
+        
+        select * from df_goods_sku where like name '%草莓%' or desc like '%草莓%';
+        这种效率很低,百度的搜索利用的是搜索引擎,我们这里也能使用.
+        
+        我们采用的是调用全文检索框架,由框架去调用搜索引擎搜索数据
+        全文检索框架:
+            可以帮助用户使用搜索引擎.
+        搜索引擎:
+            可以对表中的某些字段进行关键词分析,建立关键词对应的索引数据.
+        
+        在django里面使用全文检索引擎的步骤.
+        安装全文检索框架pip install haystack
+        安装搜索引擎 pip install whoose
+        
+        然后在配置haystack和url配置项即可
+        
+        去看看detail.html下方的js函数(商品的加减)
+    二,购物车
+        添加商品到购物车
+        1,请求方式,采用ajax
+            如果涉及到数据的修改(新增,更新,删除),采用post
+            如果只涉及到数据的获取,采用get
+        2,传递参数:商品id,商品数量
+        
+        get传参数/cart/add?sku_id=1&count=3
+        post传参数:{sku_id:1,count:3}
+        url传参数:url配置是捕获参数
+        
+    三,详情页面加入购物车,已经购物车页面修改数据的js可以好好看一看,加深对jquery的学习,还有就是
+    python_redis里面hash的操作
+        conn.hvals(cart_ket)获取hash里面的所有值
+        conn.hgetall(cart_key)获取hash里面的所有键值对返回值是字典
+        conn.hlen(cart_key)获取hash里面键的个数
 
-select * from df_goods_sku where like name '%草莓%' or desc like '%草莓%';
-这种效率很低,百度的搜索利用的是搜索引擎,我们这里也能使用.
-
-我们采用的是调用全文检索框架,由框架去调用搜索引擎搜索数据
-全文检索框架:
-    可以帮助用户使用搜索引擎.
-搜索引擎:
-    可以对表中的某些字段进行关键词分析,建立关键词对应的索引数据.
-
-在django里面使用全文检索引擎的步骤.
-安装全文检索框架pip install haystack
-安装搜索引擎 pip install whoose
-
-然后在配置haystack和url配置项即可

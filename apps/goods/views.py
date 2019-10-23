@@ -223,4 +223,4 @@ class ListView(View):
             'pages': pages
         }
         # 使用模板
-        return render(request, 'search.html/../../templates/search/search.html', context)
+        return render(request, 'list.html', context)
