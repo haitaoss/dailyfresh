@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'haystack',  # 注册全文检索框架
     'tinymce',  # 富文本编辑器
     'user',  # 用户模块
     'cart',  # 购物车模块
@@ -164,3 +165,20 @@ DEFAULT_FILE_STORAGE = 'utils.fdfs.storage.FDFSStorage'
 FDFS_CLIENT_CONF = BASE_DIR + '/utils/fdfs/client.conf'
 # 设置fdfs存储服务器的nginx的IP和端口
 FDFS_URL = 'http://192.168.205.148:8888'
+
+# 全文检索框架的配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        # 使用whoosh引擎,这其实是一个文件的路径
+        # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine', 这是默认的
+        'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',  # 这是我们修改之后的,更新了中文分词
+        # 搜索引擎可以对表中的某些字段进行关键词分析,建立关键词对应的索引数据.
+        # 索引文件路径,就是搜索引擎建立文件索引的,索引文件的存放位置
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    }
+}
+
+# 当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+# 每页显示数量
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 1

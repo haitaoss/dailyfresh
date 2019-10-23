@@ -122,3 +122,22 @@
     GoodsSKU.objects.filter(type=sku.type).exclude(id=sku_id).order_by('-create_time'),购物车信息从redis中获取
     
 二,列表页,使用分页模型,学会自定义要显示的页码
+
+
+第六天:全文搜索
+例子 :草莓
+
+select * from df_goods_sku where like name '%草莓%' or desc like '%草莓%';
+这种效率很低,百度的搜索利用的是搜索引擎,我们这里也能使用.
+
+我们采用的是调用全文检索框架,由框架去调用搜索引擎搜索数据
+全文检索框架:
+    可以帮助用户使用搜索引擎.
+搜索引擎:
+    可以对表中的某些字段进行关键词分析,建立关键词对应的索引数据.
+
+在django里面使用全文检索引擎的步骤.
+安装全文检索框架pip install haystack
+安装搜索引擎 pip install whoose
+
+然后在配置haystack和url配置项即可

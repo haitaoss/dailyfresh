@@ -1,0 +1,7 @@
+# 指定根据表中的那些字段建立索引数据
+{{ object.name }} #根据商品的名称建立索引
+{{ object.desc }} #根据商品的简介建立索引
+{{ object.goods.detail }} #根据商品的详情建立索引
+
+# 然后进入虚拟环境来到这个项目目录使用命令python manage.py rebuild_index
+# 建立出索引文件,索引文件的存放路径就是你在settings里面配置的
