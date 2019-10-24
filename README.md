@@ -164,7 +164,29 @@ sudo /usr/local/nginx/sbin/nginx  访问存在fdfs文件存储系统里面的图
         
     三,详情页面加入购物车,已经购物车页面修改数据的js可以好好看一看,加深对jquery的学习,还有就是
     python_redis里面hash的操作
-        conn.hvals(cart_ket)获取hash里面的所有值
-        conn.hgetall(cart_key)获取hash里面的所有键值对返回值是字典
-        conn.hlen(cart_key)获取hash里面键的个数
+       sudo
 
+第七天,订单
+    知识点,表单中的checkbox只有被选中才会把数据提交.
+    request.POST -> QueryDict
+    request.POST.getlist('sku_id')
+    
+    订单页面的显示
+    在购物车页面,点击加入订单,需要的参数,只要商品id即可,其余信息,应该从数据库中获取.
+    否则,用户自己修改金额,我们不就糟糕了.
+    
+    订单创建
+    订单页面,点击提交订单,只需要收货地址id,商品id,支付方式
+    
+    订单信息表df_order_info
+    订单商品表df_order_goods
+    
+    用户每下一个订单,就需要想df_order_info表中添加一条记录.
+    用户的订单中有几个商品,就需要想df_order_goods中加入几条记录
+    
+    
+    mysql事物
+    from django.db import transaction这个包里面有一个装饰器函数@transaction.atomic
+    这个的作用就是,在下面的函数里面开启事物.
+    
+    设置事物保存点的技巧,执行同一业务逻辑的地方之前就设置一个保存点,方便出错能回滚
