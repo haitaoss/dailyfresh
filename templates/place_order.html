@@ -91,7 +91,6 @@
             var pay_method = $('input[name="pay_style"]:checked').val();
             var sku_ids = $(this).attr('sku_ids');
             var csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
-            alert(pay_method);
             //组织参数
             var params = {
                 'addr_id': addr_id,

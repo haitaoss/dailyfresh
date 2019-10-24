@@ -137,36 +137,62 @@ class OrderCommitView(View):
             conn = get_redis_connection('default')
             cart_key = 'cart_%d' % user.id
             for sku_id in sku_ids.split(","):
+                for i in range(3):
 
-                # import time 模拟并发的时候网速没别人快.被别人先买了
-                # time.sleep(10)
-                # 获取商品的信息
-                try:
-                    sku = GoodsSKU.objects.get(id=sku_id)
-                except GoodsSKU.DoesNotExist:
-                    # 回滚
-                    transaction.savepoint_rollback(save_id)
-                    return JsonResponse({'res': 4, 'errmsg': '商品不存在'})
-                count = int(conn.hget(cart_key, sku_id))
+                    # import time 模拟并发的时候网速没别人快.被别人先买了
+                    # time.sleep(10)
+                    # 获取商品的信息
+                    try:
 
-                # todo 判断商品的库存
-                if count > sku.stock:
-                    # 回滚
-                    transaction.savepoint_rollback(save_id)
-                    return JsonResponse({'res': 6, 'errmsg': '商品库存不足'})
+                        # todo 加锁,select * from df_goods_sku where id=sku_id for update
+                        # sku = GoodsSKU.objects.select_for_update().get(id=sku_id)
+                        sku = GoodsSKU.objects.get(id=sku_id)  # 在更新的时候在判断
+                    except GoodsSKU.DoesNotExist:
+                        # 回滚
+                        transaction.savepoint_rollback(save_id)
+                        return JsonResponse({'res': 4, 'errmsg': '商品不存在'})
 
-                # todo: 向df_order_goods表中添加一条记录
+                    # 从redis中获取商品的数量
+                    count = int(conn.hget(cart_key, sku_id))
+                    # todo 判断商品的库存
+                    if count > sku.stock:
+                        # 回滚
+                        transaction.savepoint_rollback(save_id)
+                        return JsonResponse({'res': 6, 'errmsg': '商品库存不足'})
 
-                amount = count * sku.price
-                #  累加总数目和总价格
-                total_count += count
-                total_price += amount
-                OrderGoods.objects.create(order=order, sku=sku, count=count, price=sku.price)
+                    # todo: 更新商品的库存和销量
+                    # sku.stock -= count
+                    # sku.sales += count
+                    # sku.save()
+                    orgin_stock = sku.stock
+                    new_stock = orgin_stock - count
+                    new_sales = sku.sales + count
 
-                # todo: 更新商品的库存和销量
-                sku.stock -= count
-                sku.sales += count
-                sku.save()
+                    print('user:%d times:%d stock:%d' % (user.id, i, sku.stock))
+                    import time
+                    time.sleep(10)
+
+                    # update df_goods_sku set stock=new_stock ,sales=new_sales where id=sku_id
+                    # and stock = orgin_stock
+                    # 返回受影响的行数
+                    res = GoodsSKU.objects.filter(id=sku_id, stock=orgin_stock).update(stock=new_stock, sales=new_sales)
+                    if res == 0:
+                        # 尝试3次都下单失败，就认为失败（主要目的是，有3件商品，两个客户一人买一个的情况，可能出现下单失败）
+                        if i == 2:
+                            transaction.savepoint_rollback(save_id)
+                            return JsonResponse({'res': 7, 'errmsg': '下单失败'})
+                        continue
+                    # todo: 向df_order_goods表中添加一条记录
+
+                    amount = count * sku.price
+                    #  累加总数目和总价格
+                    total_count += count
+                    total_price += amount
+                    OrderGoods.objects.create(order=order, sku=sku, count=count, price=sku.price)
+
+                    # 如果到了这里，且i不为2我们需要手动跳出循环
+                    break
+
             # todo: 更新订单信息表中的商品的中数量和总价格
             order.total_price = total_price
             order.total_count = total_count
@@ -177,6 +203,7 @@ class OrderCommitView(View):
 
         # 提交事物
         transaction.savepoint_commit(save_id)  # 将保存到点包含的sql语句提交
+
         # todo:清除用户购物车中对应的记录[1,2,3] -> 1,2,3
         conn.hdel(cart_key, *sku_ids)  # 这里是位置参数,所以把列表拆包处理
         # 返回应答

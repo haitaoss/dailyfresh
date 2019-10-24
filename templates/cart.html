@@ -17,6 +17,7 @@
         {% csrf_token %}
         {% for sku in skus %}
             <ul class="cart_list_td clearfix">
+
                 <li class="col01"><input type="checkbox" name="sku_id" value="{{ sku.id }}" checked></li>
                 <li class="col02"><img src="{{ sku.image.url }}"></li>
                 <li class="col03">大兴大棚草莓<br><em>{{ sku.price }}元/{{ sku.unit }}g</em></li>
@@ -239,6 +240,30 @@
                 //设置成修改之前的数目
                 $(this).val(pre_count);
             }
+        });
+
+        //删除购物车条目
+        $('.cart_list_td').children('li[class="col08"]').children('a').click(function () {
+            {#alert(11);#}
+            //发起请求，删除用户的购物车信息
+            var sku_id = $('.cart_list_td').find('input[name="sku_id"]').val();
+            // 获取我们在页面的csrf隐藏域的值
+            var csrf_token = $('input[type="hidden"][name="csrfmiddlewaretoken"]').val();
+            //组织参数
+            params = {'sku_id': sku_id, 'csrfmiddlewaretoken': csrf_token};
+            //发起异步请求
+            $.post('/cart/delete_one', params, function (data) {
+                if (data.res == 3) {
+                    {#alert(data.message);#}
+                    //偷懒一下，直接重新加载页面
+                    window.location.reload();
+                    //更新页面数据
+
+                } else {
+                    alert(data.errmsg)
+                }
+            });
+
         });
 
     </script>

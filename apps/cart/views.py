@@ -146,7 +146,8 @@ class CartUpdateView(View):
         # 业务处理:更新redis里面的数据
         conn = get_redis_connection('default')
         cart_ket = 'cart_%d' % user.id
-
+        print(count)
+        print(sku.stock)
         # 校验商品的库存
         if count > sku.stock:
             return JsonResponse({'res': 4, 'errmsg': '商品库存不足'})
@@ -159,3 +160,32 @@ class CartUpdateView(View):
             total_count += int(num)
         # 返回应答
         return JsonResponse({'res': 5, 'message': '更新成功', 'total_count': total_count})
+
+
+# 删除一条购物车条目
+class CartDeleteOneView(View):
+    """删除一条购物车条目"""
+
+    def post(self, request):
+        # 判断用户是否登录
+        user = request.user
+        if not user.is_authenticated():
+            return JsonResponse({'res': 0, 'errmsg': '请登录'})
+
+        # # 校验数据的完整性
+        sku_id = request.POST.get('sku_id')
+        # if not sku_id:
+        #     return JsonResponse({'res': 1, 'errmsg': '数据不完整'})
+
+        # 校验数据的合法性
+        try:
+            sku = GoodsSKU.objects.get(id=sku_id)
+        except GoodsSKU.DoesNotExist:
+            return JsonResponse({'res': 2, 'errmsg': '商品不存在'})
+        # 删除redis里面的key
+        conn = get_redis_connection('default')
+        cart_key = 'cart_%d' % user.id
+        conn.hdel(cart_key, sku_id)
+
+        # 返回应答
+        return JsonResponse({'res': 3, 'message': '成功'})

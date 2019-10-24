@@ -168,25 +168,54 @@ sudo /usr/local/nginx/sbin/nginx  访问存在fdfs文件存储系统里面的图
 
 第七天,订单
     知识点,表单中的checkbox只有被选中才会把数据提交.
-    request.POST -> QueryDict
-    request.POST.getlist('sku_id')
+        request.POST -> QueryDict
+        request.POST.getlist('sku_id')
     
     订单页面的显示
-    在购物车页面,点击加入订单,需要的参数,只要商品id即可,其余信息,应该从数据库中获取.
-    否则,用户自己修改金额,我们不就糟糕了.
+        在购物车页面,点击加入订单,需要的参数,只要商品id即可,其余信息,应该从数据库中获取.
+        否则,用户自己修改金额,我们不就糟糕了.
     
     订单创建
-    订单页面,点击提交订单,只需要收货地址id,商品id,支付方式
-    
-    订单信息表df_order_info
-    订单商品表df_order_goods
-    
-    用户每下一个订单,就需要想df_order_info表中添加一条记录.
-    用户的订单中有几个商品,就需要想df_order_goods中加入几条记录
+        订单页面,点击提交订单,只需要收货地址id,商品id,支付方式
+        
+        订单信息表df_order_info
+        订单商品表df_order_goods
+        
+        用户每下一个订单,就需要想df_order_info表中添加一条记录.
+        用户的订单中有几个商品,就需要想df_order_goods中加入几条记录
     
     
     mysql事物
-    from django.db import transaction这个包里面有一个装饰器函数@transaction.atomic
-    这个的作用就是,在下面的函数里面开启事物.
-    
-    设置事物保存点的技巧,执行同一业务逻辑的地方之前就设置一个保存点,方便出错能回滚
+        from django.db import transaction这个包里面有一个装饰器函数@transaction.atomic
+        这个的作用就是,在下面的函数里面开启事物.
+        
+        设置事物保存点的技巧,执行同一业务逻辑的地方之前就设置一个保存点,方便出错能回滚
+        
+    并发问题的处理
+        我们创建订单的浏览，
+            1.df_order_info添加一条记录，
+                加锁（悲观锁select * from df_ordre_goods where id=1 for update）
+            2.查询sku_id的商品信息，
+            3.判断购买的数量和商品的库存，
+            4.向df_order_goods中添加记录
+            5.商品库存的更新
+            
+         假设：现在有两个客户，第一个客户进程执行到第4步之前，cpu切换到用户二的代码同样执行到第4步之前。
+         这个时候两个用户的count都是一样的。分别执行后面的代码正常情况是count-2 现在变成count-1。这就
+         是并发的问题。这里需要使用锁来解决。
+         
+        两种解决方法，
+            悲观锁（拿到锁之后，释放锁，别人才能上锁。事物结束，锁就释放了），
+                查询的时候就加锁
+                思路，我们在获取商品信息之前，上一个锁，这样子只有当我们操作完成事物之后，别人才能上锁。这就保证库存量的唯一
+            乐观锁 
+                在查询数据的时候不加锁，在更新是进行判断。
+                判断更新是的库存和之前查出的库存是否一致。
+                update df_goods_sku set stock=0 seles=1 where id =2 and stock =1;
+        设置mysql的事物隔离级别为读已提交sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf
+        
+        
+        锁的选择方式，
+            在冲突比较少的时候建议使用乐观锁（因为一次就成功，减少加锁开锁的开销）
+            乐观锁重复操作的代价比较大，用悲观锁。
+            冲突多使用悲观锁（因为冲突多循环的次数就多了，还不如直接上锁）。
