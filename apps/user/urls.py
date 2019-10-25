@@ -11,8 +11,9 @@ urlpatterns = [
     # url(r'^address$', login_required(UserSiteView.as_view()), name='address'),  # 用户中心-地址页
     # url(r'^$', login_required(UserInfoView.as_view()), name='info'),  # 用户中心-信息页
 
-    url(r'^order$', UserOrderView.as_view(), name='order'),  # 用户中心-订单页
+    url(r'^order/(?P<page>\d+)$', UserOrderView.as_view(), name='order'),  # 用户中心-订单页
     url(r'^address$', UserSiteView.as_view(), name='address'),  # 用户中心-地址页
     url(r'^$', UserInfoView.as_view(), name='info'),  # 用户中心-信息页
     url(r'^logout$', LogoutView.as_view(), name='logout'),  # 用户中心-信息页
+
 ]
