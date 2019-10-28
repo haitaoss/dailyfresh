@@ -1,12 +1,29 @@
 # dailyfresh
 天天生鲜
 
+celery==4.1.1 	celery任务框架
+Django==1.8.2 	django框架
+django-haystack==2.8.1	haystack检索框架
+Whoosh==2.7.4		whoosh搜索引擎
+jieba==0.39		jieba分词（中文分词插件，搜索引擎需要）
+django-redis==4.10.0	django连接redis的包
+django-redis-sessions==0.5.6	将session中的数据保存到redis数据库里面的包
+django-tinymce==2.6.0		富文本编辑器的包
+fdfs-client-py==1.2.6		连接到fast dfs client的包
+itsdangerous==1.1.0		加密数据的包
+PyMySQL==0.9.3			连接mysql的包			
+uWSGI==2.0.18			使用uwsgi服务器启动django项目的包
+
+应该就这些包
+
+========================================================
 
 访问项目首先启动,在settings里面配置的redis服务器,再启动fdfs tracker和storage,再启动访问fdfs的nginx服务
 sudo redis-server /etc/redis/redis.conf 首页需要查询redis缓存有没有
 sudo service fdfs_trackerd start 上传文件才需要[可以先不启动]
 sudo service fdfs_storaged start 上传文件才需要[可以先不启动]
 sudo /usr/local/nginx/sbin/nginx  访问存在fdfs文件存储系统里面的图片文件需要
+启动celery的中间将celery -A xx.py worker -l info
 
 第一天：实现注册功能
 首先显示注册页面，在写出注册提交的试图函数 。然后实现发邮件的功能
